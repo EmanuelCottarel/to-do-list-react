@@ -3,7 +3,9 @@ import {FormProps} from "../interfaces/FormProps";
 
 const Form: React.FC<FormProps> = ({addTask}) => {
 
-    const [name, setName] = useState("")
+    const [name, setName] = useState("");
+
+
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>){
         e.preventDefault();
