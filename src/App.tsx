@@ -4,10 +4,18 @@ import Todo from "./components/Todo";
 import {AppProps} from "./interfaces/AppProps";
 import FilterButton from "./components/FilterButton";
 import {nanoid} from "nanoid";
+import {TodoInterface} from "./interfaces/todo";
 
+const FILTER_MAP: Record<string, (task: TodoInterface) => boolean> = {
+    All: () => true,
+    Active: (task: TodoInterface) => !task.completed,
+    Completed: (task: TodoInterface) => task.completed
+}
+const FILTER_NAMES = Object.keys(FILTER_MAP);
 const App: React.FC<AppProps> = (props) => {
 
     const [tasks, setTasks] = useState(props.tasks);
+    const [filter, setFilter] = useState('All');
 
     function toggleTaskCompleted(id: string) {
         const updatedTasks = tasks.map((task) => {
@@ -26,9 +34,7 @@ const App: React.FC<AppProps> = (props) => {
 
     function editTask(id: string, newName: string) {
         const editedTaskList = tasks.map((task) => {
-            // if this task has the same ID as the edited task
             if (id === task.id) {
-                //
                 return {...task, name: newName};
             }
             return task;
@@ -36,16 +42,27 @@ const App: React.FC<AppProps> = (props) => {
         setTasks(editedTaskList);
     }
 
-    const taskList = tasks.map((task) =>
-        <Todo
-            id={task.id}
-            name={task.name}
-            completed={task.completed}
-            key={task.id}
-            toggleTaskCompleted={toggleTaskCompleted}
-            deleteTask={deleteTask}
-            editTask={editTask}
-        />)
+    const taskList = tasks
+        .filter(FILTER_MAP[filter])
+        .map((task) =>
+            <Todo
+                id={task.id}
+                name={task.name}
+                completed={task.completed}
+                key={task.id}
+                toggleTaskCompleted={toggleTaskCompleted}
+                deleteTask={deleteTask}
+                editTask={editTask}
+            />)
+
+    const filterList = FILTER_NAMES.map((name) => (
+        <FilterButton
+            key={name}
+            name={name}
+            isPressed={name === filter}
+            setFilter={setFilter}
+        />
+    ))
 
     const tasksNoun = taskList.length !== 1 ? 'tasks' : 'task';
     const headingText = `${taskList.length} ${tasksNoun} remaining`;
@@ -60,9 +77,7 @@ const App: React.FC<AppProps> = (props) => {
             <h1>TodoMatic</h1>
             <Form addTask={addTask}/>
             <div className="filters btn-group stack-exception">
-                <FilterButton/>
-                <FilterButton/>
-                <FilterButton/>
+                {filterList}
             </div>
             <h2 id="list-heading">{headingText}</h2>
             <ul
