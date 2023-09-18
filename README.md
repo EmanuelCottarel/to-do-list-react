@@ -4,7 +4,7 @@
 
 https://emanuelcottarel.github.io/to-do-list-react/
 
-## Presentation:
+## Presentation
 
 
 
